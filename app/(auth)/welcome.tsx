@@ -3,17 +3,20 @@ import ScreenWrapper from "@/components/ScreenWrapper";
 import Typo from "@/components/Typo";
 import { colors, spacingX, spacingY } from "@/constants/theme";
 import { verticalScale } from "@/utils/styling";
+import { useRouter } from "expo-router";
 import React from "react";
-import {StyleSheet, TouchableOpacity, View } from "react-native";
-import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated'
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 
 const Welcome = () => {
+  const router = useRouter();
+
   return (
     <ScreenWrapper>
       <View style={styles.container}>
         {/* login Button & image */}
         <View>
-          <TouchableOpacity style={styles.loginButton}>
+          <TouchableOpacity onPress={() => router.push('/(auth)/login/login')} style={styles.loginButton}>
             <Typo fontWeight={"500"}>Sign In</Typo>
           </TouchableOpacity>
 
@@ -27,7 +30,10 @@ const Welcome = () => {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Animated.View entering={FadeInDown.duration(1000).springify().damping(12)} style={{ alignItems: "center" }}>
+          <Animated.View
+            entering={FadeInDown.duration(1000).springify().damping(12)}
+            style={{ alignItems: "center" }}
+          >
             <Typo size={30} fontWeight={800}>
               Always take control
             </Typo>
@@ -36,7 +42,13 @@ const Welcome = () => {
             </Typo>
           </Animated.View>
 
-          <Animated.View entering={FadeInDown.duration(1000).delay(100).springify().damping(12)} style={{ alignItems: "center", gap: 2 }}>
+          <Animated.View
+            entering={FadeInDown.duration(1000)
+              .delay(100)
+              .springify()
+              .damping(12)}
+            style={{ alignItems: "center", gap: 2 }}
+          >
             <Typo size={17} color={colors.textLight}>
               Finances must be arranged to set a better
             </Typo>
@@ -45,12 +57,18 @@ const Welcome = () => {
             </Typo>
           </Animated.View>
 
-          <Animated.View entering={FadeInDown.duration(1000).delay(200).springify().damping(12)} style={styles.buttonContainer}>
-              <Button>
-                <Typo size={22} color={colors.neutral900} fontWeight={600}>
-                  Get Started
-                </Typo>
-              </Button>
+          <Animated.View
+            entering={FadeInDown.duration(1000)
+              .delay(200)
+              .springify()
+              .damping(12)}
+            style={styles.buttonContainer}
+          >
+            <Button onPress={() => router.push('/(auth)/register/register')}>
+              <Typo size={22} color={colors.neutral900} fontWeight={600}>
+                Get Started
+              </Typo>
+            </Button>
           </Animated.View>
         </View>
       </View>
