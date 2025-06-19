@@ -1,19 +1,23 @@
-import { ActivityIndicatorComponent, ActivityIndicatorProps,  View } from 'react-native'
-import React from 'react'
-import { colors } from '@/constants/theme'
+import { colors } from "@/constants/theme";
+import React from "react";
+import {
+  ActivityIndicator,
+  ActivityIndicatorProps,
+  View,
+} from "react-native";
 
 const Loading = ({
-    size= 'large',
-    color = colors.primary
-
+  size = "large",
+  color = colors.primary,
 }: ActivityIndicatorProps) => {
   return (
-    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <ActivityIndicatorComponent size={size} color={color} />
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <ActivityIndicator size={size} color={color} />
     </View>
-  )
-}
+  );
+};
 
-export default Loading
+export default Loading;
+
 
 // const styles = StyleSheet.create({})
