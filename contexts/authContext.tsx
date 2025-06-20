@@ -1,12 +1,12 @@
 import { auth, firestore } from "@/config/firebase";
 import { AuthContextType, UserType } from "@/types";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
-import React, { createContext, useState } from "react";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import React, { createContext, useContext, useState } from "react";
 
-const authContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType | null>(null);
 
-export const authProvider: React.FC<{ children: React.ReactNode }> = ({
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<UserType>(null);
@@ -47,9 +47,49 @@ export const authProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const updateUserData = async (uid: string) => {
     try {
-     const response = await crea
-    } catch (error) {
+      const docRef = doc(firestore, 'users', uid);
+      const docSnap = await getDoc(docRef);
+
+      if(docSnap.exists()) {
+        const data = docSnap.data();
+        const userData: UserType = {
+          uid: data?.uid,
+          email: data?.email || null,
+          name: data?.name || null,
+          image: data?.image || null,
+
+        }
+        setUser({...userData})
+      }
+      
+    } catch (error: any) {
+      const message = error.message;
+      
+      console.log('Error', message);
       
     }
   }
+
+  const contextValue: AuthContextType = {
+    user,
+    setUser,
+    login,
+    register,
+    updateUserData
+  }
+
+  return (
+    <AuthContext.Provider value={contextValue}> 
+      {children}
+    </AuthContext.Provider>
+  )
 };
+
+
+export const useAuth = ():AuthContextType => {
+  const context = useContext(AuthContext);
+  if(!context) {
+    throw new Error('userAuth must be wrapped inside AuthProvider')
+  }
+  return context;
+}
