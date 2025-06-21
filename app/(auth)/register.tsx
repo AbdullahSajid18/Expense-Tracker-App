@@ -4,6 +4,7 @@ import Input from "@/components/Input";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import Typo from "@/components/Typo";
 import { colors, spacingX, spacingY } from "@/constants/theme";
+import { useAuth } from "@/contexts/authContext";
 import { verticalScale } from "@/utils/styling";
 import { useRouter } from "expo-router";
 import * as Icons from "phosphor-react-native";
@@ -16,16 +17,24 @@ const Register = () => {
   const passwordRef = useRef("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { register: registerUser } = useAuth();
 
   const submitHandler = async () => {
-    if(!emailRef.current || !passwordRef.current || !nameRef.current) {
-      Alert.alert('Login', 'Please fill all the fields');
+    if (!emailRef.current || !passwordRef.current || !nameRef.current) {
+      Alert.alert("Login", "Please fill all the fields");
       return;
     }
-    console.log('email', emailRef.current);
-    console.log('name', nameRef.current);
-    console.log('password', passwordRef.current);
-    console.log('Good to go');
+    setIsLoading(true);
+    const response = await registerUser(
+      emailRef.current,
+      passwordRef.current,
+      nameRef.current
+    );
+    setIsLoading(false);
+    console.log('register result:', response);
+    if(response.success) {
+      Alert.alert('Sign Up', response.msg)
+    }
     
   };
 
@@ -39,7 +48,7 @@ const Register = () => {
             Let&apos;s
           </Typo>
           <Typo size={30} fontWeight={800}>
-          get started
+            get started
           </Typo>
         </View>
         {/* form */}
@@ -93,8 +102,10 @@ const Register = () => {
         {/* footer */}
         <View style={styles.footer}>
           <Typo size={15}>Already have an account? </Typo>
-          <Pressable onPress={() => router.navigate('/(auth)/login')}>
-            <Typo size={15} fontWeight={700} color={colors.primary}>Login</Typo>
+          <Pressable onPress={() => router.navigate("/(auth)/login")}>
+            <Typo size={15} fontWeight={700} color={colors.primary}>
+              Login
+            </Typo>
           </Pressable>
         </View>
       </View>
