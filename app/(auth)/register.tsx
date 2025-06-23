@@ -32,8 +32,8 @@ const Register = () => {
     );
     setIsLoading(false);
     console.log('register result:', response);
-    if(response.success) {
-      Alert.alert('Sign Up Successfull', response.message)
+    if(!response.success) {
+      Alert.alert('Sign Up Failed', response.message)
     }
     
   };

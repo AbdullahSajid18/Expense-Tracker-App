@@ -5,8 +5,13 @@ import Typo from '@/components/Typo'
 import { colors } from '@/constants/theme'
 import { signOut } from 'firebase/auth'
 import { auth } from '@/config/firebase'
+import { useAuth } from '@/contexts/authContext'
 
 const Home = () => {
+  const {user} = useAuth();
+
+  console.log('user', user);
+  
   const logoutHandler = async () => {
     await signOut(auth)
 
@@ -27,4 +32,6 @@ const Home = () => {
 
 export default Home
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  
+})
