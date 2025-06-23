@@ -4,6 +4,7 @@ import Input from "@/components/Input";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import Typo from "@/components/Typo";
 import { colors, spacingX, spacingY } from "@/constants/theme";
+import { useAuth } from "@/contexts/authContext";
 import { verticalScale } from "@/utils/styling";
 import { useRouter } from "expo-router";
 import * as Icons from "phosphor-react-native";
@@ -15,16 +16,20 @@ const Login = () => {
   const passwordRef = useRef("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { login: loginUser } = useAuth();
 
   const submitHandler = async () => {
-    if(!emailRef.current || !passwordRef.current) {
-      Alert.alert('Login', 'Please fill all the fields');
+    if (!emailRef.current || !passwordRef.current) {
+      Alert.alert("Login", "Please fill all the fields");
       return;
     }
-    console.log('email', emailRef.current);
-    console.log('password', passwordRef.current);
-    console.log('Good to go');
-    
+
+    setIsLoading(true);
+    const response = await loginUser(emailRef.current, passwordRef.current);
+    setIsLoading(false);
+    if (!response.success) {
+      Alert.alert("Login Failed", response.message);
+    }
   };
 
   return (
@@ -84,8 +89,10 @@ const Login = () => {
         {/* footer */}
         <View style={styles.footer}>
           <Typo size={15}>Don&apos;t have an account? </Typo>
-          <Pressable onPress={() => router.navigate('/(auth)/register')}>
-            <Typo size={15} fontWeight={700} color={colors.primary}>Sign Up</Typo>
+          <Pressable onPress={() => router.navigate("/(auth)/register")}>
+            <Typo size={15} fontWeight={700} color={colors.primary}>
+              Sign Up
+            </Typo>
           </Pressable>
         </View>
       </View>

@@ -129,10 +129,10 @@ export type ImageUploadProps = {
 };
 
 export type UserType = {
-  uid: string | null;
-  email: string | null;
+  uid?: string;
+  email?: string | null;
   name: string | null;
-  image: string | null;
+  image?: any;
 } | null;
 
 export type UserDataType = {
@@ -140,17 +140,25 @@ export type UserDataType = {
   image?: any;
 };
 
-export interface AuthContextType {
+export type AuthContextType = {
   user: UserType;
-  setUser: (user: UserType) => void;
-  login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
-  register: (email: string, password: string, name?: string) => Promise<{ success: boolean; message?: string }>;
-  updateUserData: (uid: string) => Promise<void>;
-}
+  setUser: Function;
+  login: (
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; message?: string }>;
+  register: (
+    email: string,
+    password: string,
+    name: string
+  ) => Promise<{ success: boolean; message?: string }>;
+  updateUserData: (userId: string) => Promise<void>;
+};
+
 export type ResponseType = {
   success: boolean;
   data?: any;
-  msg?: string;
+  message?: string;
 };
 
 export type WalletType = {
