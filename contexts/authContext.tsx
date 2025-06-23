@@ -1,4 +1,4 @@
-import { auth, firestore } from "@/config/firebase";
+import { firestore, auth } from "@/config/firebase";
 import { AuthContextType, UserType } from "@/types";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -13,8 +13,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const login = async (email: string, password: string) => {
     try {
-      // Login User
-
       await signInWithEmailAndPassword(auth, email, password);
       return { success: true };
     } catch (error: any) {
@@ -26,15 +24,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const register = async (email: string, password: string) => {
+  const register = async (email: string, password: string, name?: string) => {
     try {
-      // Registering User
-        const response =await  createUserWithEmailAndPassword(auth, email, password);
-        await setDoc(doc(firestore, 'users', response?.user?.uid), {
-          name,
-          email,
-          uid: response?.user?.uid
-        })
+      const response = await createUserWithEmailAndPassword(auth, email, password);
+      await setDoc(doc(firestore, 'users', response?.user?.uid), {
+        name: name || '',
+        email,
+        uid: response?.user?.uid
+      })
       return { success: true };
     } catch (error: any) {
       let message = error.message;
@@ -57,16 +54,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           email: data?.email || null,
           name: data?.name || null,
           image: data?.image || null,
-
         }
         setUser({...userData})
       }
       
     } catch (error: any) {
       const message = error.message;
-      
       console.log('Error', message);
-      
     }
   }
 
@@ -85,11 +79,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   )
 };
 
-
-export const useAuth = ():AuthContextType => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if(!context) {
-    throw new Error('userAuth must be wrapped inside AuthProvider')
+    throw new Error('useAuth must be used within AuthProvider')
   }
   return context;
 }

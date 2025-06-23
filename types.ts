@@ -129,10 +129,10 @@ export type ImageUploadProps = {
 };
 
 export type UserType = {
-  uid?: string;
-  email?: string | null;
+  uid: string | null;
+  email: string | null;
   name: string | null;
-  image?: any;
+  image: string | null;
 } | null;
 
 export type UserDataType = {
@@ -140,21 +140,13 @@ export type UserDataType = {
   image?: any;
 };
 
-export type AuthContextType = {
+export interface AuthContextType {
   user: UserType;
-  setUser: Function;
-  login: (
-    email: string,
-    password: string
-  ) => Promise<{ success: boolean; msg?: string }>;
-  register: (
-    email: string,
-    password: string,
-    name: string
-  ) => Promise<{ success: boolean; msg?: string }>;
-  updateUserData: (userId: string) => Promise<void>;
-};
-
+  setUser: (user: UserType) => void;
+  login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
+  register: (email: string, password: string, name?: string) => Promise<{ success: boolean; message?: string }>;
+  updateUserData: (uid: string) => Promise<void>;
+}
 export type ResponseType = {
   success: boolean;
   data?: any;
