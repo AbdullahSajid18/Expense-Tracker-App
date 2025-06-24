@@ -12,21 +12,10 @@ const Home = () => {
   const {user} = useAuth();
 
   console.log('user', user);
-  
-  const logoutHandler = async () => {
-    await signOut(auth)
-
-  }
-
-
+ 
   return (
     <ScreenWrapper>
       <Typo>Home</Typo>
-      <Button onPress={logoutHandler}>
-        <Typo color={colors.black}>
-          Logout
-        </Typo>
-      </Button>
     </ScreenWrapper>
   )
 }

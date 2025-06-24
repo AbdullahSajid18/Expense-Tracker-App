@@ -4,7 +4,11 @@ import { AuthProvider } from "../contexts/authContext";
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <Stack screenOptions={{ headerShown: false }} />
+      <Stack screenOptions={{ headerShown: false }} >
+        <Stack.Screen name="(modals)/profileModel" options={{
+          presentation: 'modal'
+        }} />
+      </Stack>
     </AuthProvider>
   );
 }

@@ -1,24 +1,30 @@
 import Header from "@/components/Header";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import Typo from "@/components/Typo";
+import { auth } from "@/config/firebase";
 import { colors, radius, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
 import { getProfileImage } from "@/services/imageService";
 import { accountOptionType } from "@/types";
 import { verticalScale } from "@/utils/styling";
 import { Image } from "expo-image";
+import { useRouter } from "expo-router";
+import { signOut } from "firebase/auth";
 import * as Icons from "phosphor-react-native";
 import React from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 const Profile = () => {
   const { user } = useAuth();
+  const router = useRouter();
+
+
   const accountOptions: accountOptionType[] = [
     {
       title: "Edit Profile",
       icon: <Icons.User size={26} color={colors.white} weight="fill" />,
-      routeName: "/(models)/profileModel",
+      routeName: "/(modals)/profileModal",
       bgColor: "#6366f1",
     },
     {
@@ -40,6 +46,32 @@ const Profile = () => {
       bgColor: "#e11d48",
     },
   ];
+
+  const logoutHandler = async () => {
+    await signOut(auth);
+  };
+  const showLogoutAlert = () => {
+    Alert.alert("Confirm", "Are you sure you want to logout?", [
+      {
+        text: "Cancel",
+        onPress: () => console.log("cancel logout"),
+        style: "cancel",
+      },
+      {
+        text: "Logout",
+        onPress: () => logoutHandler(),
+        style: "destructive",
+      },
+    ]);
+  };
+
+  const pressHandler = async (item: accountOptionType) => {
+    if (item.title === "Logout") {
+      showLogoutAlert();
+    }
+    if(item.routeName) router.push(item.routeName)
+  };
+
 
   return (
     <ScreenWrapper>
@@ -69,30 +101,41 @@ const Profile = () => {
         </View>
 
         <View style={styles.accountOptions}>
-          {
-            accountOptions.map((item, index) => {
-              return (
-                <Animated.View entering={FadeInDown.delay(index*50).springify().damping(14)} style={styles.listItem} key={index}>
-                  <TouchableOpacity style={styles.flexRow}>
-                    <View style={[styles.listIcon, {
-                      backgroundColor: item?.bgColor
-                    }]}>
-                      {item.icon && item.icon}
-
-                    </View>
-                    <Typo size={16} style={{flex: 1}} fontWeight={500}>{item.title}</Typo>
-                    <Icons.CaretRight 
-                      size={verticalScale(20)}
-                      weight="bold"
-                      color={colors.white}
-                    />
-
-                  </TouchableOpacity>
-                </Animated.View>
-              )
-            })
-          }
-
+          {accountOptions.map((item, index) => {
+            return (
+              <Animated.View
+                entering={FadeInDown.delay(index * 50)
+                  .springify()
+                  .damping(14)}
+                style={styles.listItem}
+                key={index.toString()}
+              >
+                <TouchableOpacity
+                  style={styles.flexRow}
+                  onPress={() => pressHandler(item)}
+                >
+                  <View
+                    style={[
+                      styles.listIcon,
+                      {
+                        backgroundColor: item?.bgColor,
+                      },
+                    ]}
+                  >
+                    {item.icon && item.icon}
+                  </View>
+                  <Typo size={16} style={{ flex: 1 }} fontWeight={500}>
+                    {item.title}
+                  </Typo>
+                  <Icons.CaretRight
+                    size={verticalScale(20)}
+                    weight="bold"
+                    color={colors.white}
+                  />
+                </TouchableOpacity>
+              </Animated.View>
+            );
+          })}
         </View>
       </View>
     </ScreenWrapper>
