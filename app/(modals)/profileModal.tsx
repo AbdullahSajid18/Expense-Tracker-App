@@ -11,6 +11,7 @@ import { updateUser } from "@/services/userService";
 import { UserDataType } from "@/types";
 import { scale, verticalScale } from "@/utils/styling";
 import { Image } from "expo-image";
+import { useRouter } from "expo-router";
 import * as Icons from "phosphor-react-native";
 import React, { useEffect, useState } from "react";
 import {
@@ -20,15 +21,16 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import * as ImagePicker from 'expo-image-picker'
 
 const ProfileModal = () => {
-  const { user } = useAuth();
+  const { user, updateUserData } = useAuth();
   const [userData, setUserData] = useState<UserDataType>({
     name: "",
     image: null,
   });
-
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setUserData({
@@ -36,6 +38,21 @@ const ProfileModal = () => {
       image: user?.image || null,
     });
   }, [user]);
+
+  const imagePickHandler = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      // allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.5,
+    });
+
+
+    if (!result.canceled) {
+      setUserData({...userData, image: result.assets[0]});
+    }
+  }
+
 
   const onSubmit = async () => {
     let { name, image } = userData;
@@ -47,6 +64,8 @@ const ProfileModal = () => {
     const response = await updateUser(user?.uid as string, userData);
     setLoading(false);
     if (response.success) {
+      updateUserData(user?.uid as string);
+      router.back();
     } else {
       Alert.alert("User", response.message);
     }
@@ -70,7 +89,7 @@ const ProfileModal = () => {
               contentFit="cover"
               transition={100}
             />
-            <TouchableOpacity style={styles.editIcon}>
+            <TouchableOpacity onPress={imagePickHandler} style={styles.editIcon}>
               <Icons.Pencil
                 size={verticalScale(20)}
                 color={colors.neutral800}
