@@ -5,36 +5,52 @@ import Input from "@/components/Input";
 import ModalWrapper from "@/components/ModalWrapper";
 import Typo from "@/components/Typo";
 import { colors, spacingX, spacingY } from "@/constants/theme";
+import { useAuth } from "@/contexts/authContext";
 import { getProfileImage } from "@/services/imageService";
+import { updateUser } from "@/services/userService";
 import { UserDataType } from "@/types";
 import { scale, verticalScale } from "@/utils/styling";
 import { Image } from "expo-image";
 import * as Icons from "phosphor-react-native";
-import React, { useState } from "react";
-import { Alert, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const ProfileModal = () => {
-
+  const { user } = useAuth();
   const [userData, setUserData] = useState<UserDataType>({
-    name: '',
+    name: "",
     image: null,
   });
 
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    setUserData({
+      name: user?.name || "",
+      image: user?.image || null,
+    });
+  }, [user]);
 
   const onSubmit = async () => {
-    let {name, image} = userData;
-    if(!name.trim()) {
-      Alert.alert('User', 'Please fill all the fields');
+    let { name, image } = userData;
+    if (!name.trim()) {
+      Alert.alert("User", "Please fill all the fields");
       return;
     }
-
-    console.log('Good To go');
-    
-
-  }
-
+    setLoading(true);
+    const response = await updateUser(user?.uid as string, userData);
+    setLoading(false);
+    if (response.success) {
+    } else {
+      Alert.alert("User", response.message);
+    }
+  };
 
   return (
     <ModalWrapper>
@@ -67,16 +83,20 @@ const ProfileModal = () => {
             <Input
               placeholder="Name"
               value={userData.name}
-              onChangeText={(value) => setUserData({...userData, name: value})}
+              onChangeText={(value) =>
+                setUserData({ ...userData, name: value })
+              }
             />
           </View>
         </ScrollView>
       </View>
 
       <View style={styles.footer}>
-         <Button onPress={onSubmit} loading={loading} style={{flex: 1}}>
-            <Typo color={colors.black} fontWeight={700} >Update</Typo>
-         </Button>
+        <Button onPress={onSubmit} loading={loading} style={{ flex: 1 }}>
+          <Typo color={colors.black} fontWeight={700}>
+            Update
+          </Typo>
+        </Button>
       </View>
     </ModalWrapper>
   );
