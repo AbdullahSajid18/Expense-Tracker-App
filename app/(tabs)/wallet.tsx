@@ -32,7 +32,7 @@ const Wallet = () => {
             <Typo size={20} fontWeight={500}>
               My Wallets
             </Typo>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/(modals)/walletModal')}>
               <Icons.PlusCircle
                 weight="fill"
                 color={colors.primary}

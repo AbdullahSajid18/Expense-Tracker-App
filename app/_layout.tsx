@@ -8,6 +8,9 @@ export default function RootLayout() {
         <Stack.Screen name="(modals)/profileModel" options={{
           presentation: 'modal'
         }} />
+        <Stack.Screen name="(modals)/walletModal" options={{
+          presentation: 'modal'
+        }} />
       </Stack>
     </AuthProvider>
   );
