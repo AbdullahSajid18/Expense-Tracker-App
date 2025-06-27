@@ -1,14 +1,25 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
 import Typo from "@/components/Typo";
 import { colors, radius, spacingX, spacingY } from "@/constants/theme";
+import { useAuth } from "@/contexts/authContext";
+import useFetchData from "@/hooks/useFetchData";
+import { WalletType } from "@/types";
 import { verticalScale } from "@/utils/styling";
 import { useRouter } from "expo-router";
+import { orderBy, where } from "firebase/firestore";
 import * as Icons from "phosphor-react-native";
 import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 
 const Wallet = () => {
+  const {user} = useAuth();
   const router = useRouter();
+  const {data: wallets, error, loading} = useFetchData<WalletType>('wallets', [
+    where('uid', '==', user?.uid),
+    orderBy('created', 'desc')
+  ]);
+
+  
   const getTotalBalance = () => {
     return 2344;
   };
@@ -41,7 +52,6 @@ const Wallet = () => {
             </TouchableOpacity>
           </View>
 
-          {/* TODO: Wallet List */}
         </View>
       </View>
     </ScreenWrapper>
