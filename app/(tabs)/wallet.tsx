@@ -1,5 +1,7 @@
+import Loading from "@/components/Loading";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import Typo from "@/components/Typo";
+import WalletListItem from "@/components/WalletListItem";
 import { colors, radius, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
 import useFetchData from "@/hooks/useFetchData";
@@ -9,20 +11,25 @@ import { useRouter } from "expo-router";
 import { orderBy, where } from "firebase/firestore";
 import * as Icons from "phosphor-react-native";
 import React from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 
 const Wallet = () => {
-  const {user} = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
-  const {data: wallets, error, loading} = useFetchData<WalletType>('wallets', [
-    where('uid', '==', user?.uid),
-    orderBy('created', 'desc')
+  const {
+    data: wallets,
+    error,
+    loading,
+  } = useFetchData<WalletType>("wallets", [
+    where("uid", "==", user?.uid),
+    orderBy("created", "desc"),
   ]);
 
-  
-  const getTotalBalance = () => {
-    return 2344;
-  };
+  const getTotalBalance = () =>
+    wallets.reduce((total, item) => {
+      total = total + (item.amount || 0);
+      return total;
+    }, 0);
 
   return (
     <ScreenWrapper style={{ backgroundColor: colors.black }}>
@@ -43,7 +50,9 @@ const Wallet = () => {
             <Typo size={20} fontWeight={500}>
               My Wallets
             </Typo>
-            <TouchableOpacity onPress={() => router.push('/(modals)/walletModal')}>
+            <TouchableOpacity
+              onPress={() => router.push("/(modals)/walletModal")}
+            >
               <Icons.PlusCircle
                 weight="fill"
                 color={colors.primary}
@@ -51,7 +60,16 @@ const Wallet = () => {
               />
             </TouchableOpacity>
           </View>
-
+          {loading && <Loading />}
+          <FlatList
+            data={wallets}
+            renderItem={({ item, index }) => {
+              return (
+                <WalletListItem item={item} index={index} router={router} />
+              );
+            }}
+            contentContainerStyle={styles.listStyle}
+          ></FlatList>
         </View>
       </View>
     </ScreenWrapper>
@@ -85,7 +103,7 @@ const styles = StyleSheet.create({
     padding: spacingX._20,
     paddingTop: spacingX._25,
   },
-  listStyles: {
+  listStyle: {
     paddingVertical: spacingY._25,
     paddingTop: spacingY._15,
   },
