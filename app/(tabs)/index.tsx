@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native'
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import Button from '@/components/Button'
 import Typo from '@/components/Typo'
@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/authContext'
 import ScreenWrapper from '@/components/ScreenWrapper'
 import { verticalScale } from '@/utils/styling'
 import * as Icons from 'phosphor-react-native';
+import HomeCard from '@/components/HomeCard'
 
 const Home = () => {
   const {user} = useAuth();
@@ -30,8 +31,14 @@ const Home = () => {
               weight='bold'
             />
           </TouchableOpacity>
-
         </View>
+        <ScrollView contentContainerStyle={styles.scrollViewStyle} showsVerticalScrollIndicator={false}>
+          {/* card */}
+          <View>
+            <HomeCard />
+          </View>
+
+        </ScrollView>
       </View>
     </ScreenWrapper>
   )
