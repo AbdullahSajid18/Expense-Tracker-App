@@ -79,7 +79,7 @@ const TransactionItem = ({
 
         <View style ={styles.categoryDesc}>
           <Typo size={17}>{category.label}</Typo>
-          <Typo size={12} color={colors.neutral400} textProps={{numberOfLines: 1}}>Paid electricity bill</Typo>
+          <Typo size={12} color={colors.neutral400} textProps={{numberOfLines: 1}}> electricity bill and other utilities</Typo>
 
         </View>
 
