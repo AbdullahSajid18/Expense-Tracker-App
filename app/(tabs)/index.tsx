@@ -6,12 +6,14 @@ import Typo from "@/components/Typo";
 import { colors, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
 import { verticalScale } from "@/utils/styling";
+import { useRouter } from "expo-router";
 import * as Icons from "phosphor-react-native";
 import React from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 
 const Home = () => {
   const { user } = useAuth();
+  const router = useRouter();
 
   return (
     <ScreenWrapper>
@@ -43,7 +45,7 @@ const Home = () => {
           </View>
 
           <TransactionList
-            data={[1, 2, 3,4 , 5, 6,]}
+            data={[1, 2, 3, 4, 5, 6,]}
             loading={false}
             emptyListMessage="No recent transactions found!"
             title="Recent Transactions"
@@ -51,7 +53,7 @@ const Home = () => {
         </ScrollView>
 
 
-        <Button style={styles.floatingButton}>
+        <Button style={styles.floatingButton} onPress={() => router.push('/(modals)/TransactionModal')}>
           <Icons.Plus 
             color={colors.black}
             weight="bold"

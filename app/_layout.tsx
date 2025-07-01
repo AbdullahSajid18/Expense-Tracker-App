@@ -5,10 +5,13 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <Stack screenOptions={{ headerShown: false }} >
-        <Stack.Screen name="(modals)/profileModel" options={{
+        <Stack.Screen name="(modals)/profileModal" options={{
           presentation: 'modal'
         }} />
         <Stack.Screen name="(modals)/walletModal" options={{
+          presentation: 'modal'
+        }} />
+        <Stack.Screen name="(modals)/TransactionModal" options={{
           presentation: 'modal'
         }} />
       </Stack>
