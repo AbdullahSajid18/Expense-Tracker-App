@@ -4,7 +4,7 @@ import { colors, spacingY } from '@/constants/theme'
 import { ModalWrapperProps } from '@/types'
 
 
-const isIos = Platform.OS == 'ios';
+const isIos = Platform.OS === 'ios';
 
 const ModalWrapper = ({
     style,
