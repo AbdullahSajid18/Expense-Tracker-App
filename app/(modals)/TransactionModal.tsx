@@ -161,7 +161,7 @@ const TransactionModal = () => {
               }}
             />
           </View>
-
+              {/* Wallet */}
           <View style={styles.inputContainer}>
             <Typo color={colors.neutral200} size={16}>Wallet</Typo>
             <Dropdown
@@ -273,7 +273,7 @@ const TransactionModal = () => {
               }
             />
           </View>
-
+            {/* Description */}
           <View style={styles.inputContainer}>
             <View style={styles.flexRow}>
             <Typo color={colors.neutral200} size={16}>Description</Typo>
