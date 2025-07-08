@@ -1,4 +1,6 @@
+import { firestore } from "@/config/firebase";
 import { TransactionType } from "@/types";
+import { doc, getDoc } from "firebase/firestore";
 
 
 
@@ -16,6 +18,7 @@ export const createOrUpdateTransaction = async (
             // todo: update existing transaction
         } else {
             // update wallet for new transaction
+            // update wallet
         }
       } catch (error: any) {
         console.log("error creating or updating transaction", error);
@@ -31,6 +34,13 @@ const updateWalletForNewTransaction = async (
     type: string,
 )  => {
     try {
+        const walletRef = doc(firestore, 'wallets', waleltId);
+        const walletSnapshot = await getDoc(walletRef);
+        if(!walletSnapshot.exists) {
+            console.log("error updating wallet for new transaction", error);
+        return {success: false, message: error.message}
+            
+        }
         
     } catch (error: any) {
         console.log("error updating wallet for new transaction", error);
