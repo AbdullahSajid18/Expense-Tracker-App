@@ -15,7 +15,14 @@ export const createOrUpdateTransaction = async (
       // todo: update existing transaction
     } else {
       // update wallet for new transaction
-      let response = await updateWalletForNewTransaction()
+      let response = await updateWalletForNewTransaction(
+        walletId!,
+        Number(amount!),
+        type
+      );
+      if(response && !response.success) {
+        return response;
+      }
     }
   } catch (error: any) {
     console.log("error creating or updating transaction", error);
