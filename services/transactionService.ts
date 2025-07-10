@@ -40,7 +40,7 @@ const updateWalletForNewTransaction = async (
     const walletSnapshot = await getDoc(walletRef);
     if (!walletSnapshot.exists) {
       console.log("error updating wallet for new transaction");
-      return { success: false, message: "Wallet not found" };
+      return { success: false, message: "Unexpected Error. Wallet not found!" };
     }
     const walletData = walletSnapshot.data() as WalletType;
 
