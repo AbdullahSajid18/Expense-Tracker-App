@@ -9,6 +9,7 @@ import { expenseCategories, transactionTypes } from "@/constants/data";
 import { colors, radius, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
 import useFetchData from "@/hooks/useFetchData";
+import { createOrUpdateTransaction } from "@/services/transactionService";
 import { deleteWallet } from "@/services/walletService";
 import { TransactionType, WalletType } from "@/types";
 import { scale, verticalScale } from "@/utils/styling";
@@ -84,6 +85,16 @@ const TransactionModal = () => {
     }
 
     console.log('transactionData', transactionData);
+
+    // todo: include transaction id for updating
+    setLoading(true);
+    const response = await createOrUpdateTransaction(transactionData);
+    setLoading(false);
+    if (response.success) {
+      router.back();
+    } else {
+      Alert.alert("Transaction", response.message || "Failed to create transaction");
+    }
     
   }
     
@@ -180,7 +191,7 @@ const TransactionModal = () => {
               itemTextStyle={styles.dropDownItemText}
               itemContainerStyle={styles.dropDownItemContainer}
               containerStyle={styles.dropDownListContainer}
-              placeholder={"Select item"}
+              placeholder={"Select Wallet"}
               value={transaction.walletId}
               onChange={(item) => {
                 setTransaction({ ...transaction, walletId: item.value || "" });
