@@ -18,7 +18,6 @@ const Wallet = () => {
   const router = useRouter();
   const {
     data: wallets,
-    error,
     loading,
   } = useFetchData<WalletType>("wallets", [
     where("uid", "==", user?.uid),

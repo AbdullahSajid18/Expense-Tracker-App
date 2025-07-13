@@ -1,10 +1,11 @@
 import Loading from "@/components/Loading";
 import Typo from "@/components/Typo";
-import { expenseCategories } from "@/constants/data";
+import { expenseCategories, incomeCategory } from "@/constants/data";
 import { colors, radius, spacingX, spacingY } from "@/constants/theme";
 import { TransactionItemProps, TransactionListType } from "@/types";
 import { verticalScale } from "@/utils/styling";
 import { FlashList } from "@shopify/flash-list";
+import { Timestamp } from "firebase/firestore";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
@@ -37,7 +38,7 @@ const TransactionList = ({
           estimatedItemSize={60}
         />
       </View>
-      {!loading && data.length == 0 && (
+      {!loading && data.length === 0 && (
         <Typo
           size={15}
           color={colors.neutral400}
@@ -61,9 +62,14 @@ const TransactionItem = ({
   index,
   handleClick,
 }: TransactionItemProps) => {
-  let category = expenseCategories["utilities"];
+  
+  let category = item?.type === 'income' ? incomeCategory : expenseCategories[item.category!]
   const IconComponent = category.icon;
 
+  const date = (item?.date as Timestamp)?.toDate()?.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+  })
   return (
     <Animated.View entering={FadeInDown.delay(index * 70).springify().damping(14)}>
       <TouchableOpacity style={styles.row} onPress={() => handleClick(item)}>
@@ -79,17 +85,18 @@ const TransactionItem = ({
 
         <View style ={styles.categoryDesc}>
           <Typo size={17}>{category.label}</Typo>
-          <Typo size={12} color={colors.neutral400} textProps={{numberOfLines: 1}}>Paid electricity bill</Typo>
+          <Typo size={12} color={colors.neutral400} textProps={{numberOfLines: 1}}>{item?.description}</Typo>
 
         </View>
 
         <View style={styles.amountDate}>
-          <Typo fontWeight={500} color={colors.rose}>
-            - $55.64
+          <Typo fontWeight={500} color={item?.type === 'income' ? colors.primary : colors.rose}>
+            {
+              `${item?.type === 'income' ? '+ $' : '- $'}${item.amount}`
+            }
           </Typo>
           <Typo size={13} color={colors.neutral400}>
-            30 Jun
-
+            {date}
           </Typo>
 
         </View>

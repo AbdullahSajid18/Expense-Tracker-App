@@ -5,8 +5,11 @@ import TransactionList from "@/components/TransactionList";
 import Typo from "@/components/Typo";
 import { colors, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
+import useFetchData from "@/hooks/useFetchData";
+import { TransactionType } from "@/types";
 import { verticalScale } from "@/utils/styling";
 import { useRouter } from "expo-router";
+import { limit, orderBy, where } from "firebase/firestore";
 import * as Icons from "phosphor-react-native";
 import React from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
@@ -14,6 +17,17 @@ import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 const Home = () => {
   const { user } = useAuth();
   const router = useRouter();
+
+  const constraints = [
+    where("uid", "==", user?.uid),
+    orderBy("date", "desc"),
+    limit(30),
+  ];
+
+  const {
+    data: recentTransactions,
+    loading: transactionsLoading,
+  } = useFetchData<TransactionType>('transactions', constraints);
 
   return (
     <ScreenWrapper>
@@ -45,16 +59,18 @@ const Home = () => {
           </View>
 
           <TransactionList
-            data={[1, 2, 3, 4, 5, 6,]}
-            loading={false}
+            data={recentTransactions}
+            loading={transactionsLoading}
             emptyListMessage="No recent transactions found!"
             title="Recent Transactions"
           />
         </ScrollView>
 
-
-        <Button style={styles.floatingButton} onPress={() => router.push('/(modals)/TransactionModal')}>
-          <Icons.Plus 
+        <Button
+          style={styles.floatingButton}
+          onPress={() => router.push("/(modals)/TransactionModal")}
+        >
+          <Icons.Plus
             color={colors.black}
             weight="bold"
             size={verticalScale(24)}
