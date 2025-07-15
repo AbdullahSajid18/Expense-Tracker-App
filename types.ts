@@ -171,3 +171,15 @@ export type WalletType = {
   uid?: string;
   created?: Date;
 };
+
+export type paramType = {
+  id: string;
+  type: string;
+  amount: string;
+  category?: string;
+  date: string;
+  description?: string;
+  image?: any;
+  uid?: string;
+  walletId: string;
+};

@@ -11,7 +11,7 @@ import { useAuth } from "@/contexts/authContext";
 import useFetchData from "@/hooks/useFetchData";
 import { createOrUpdateTransaction } from "@/services/transactionService";
 import { deleteWallet } from "@/services/walletService";
-import { TransactionType, WalletType } from "@/types";
+import { paramType, TransactionType, WalletType } from "@/types";
 import { scale, verticalScale } from "@/utils/styling";
 import DateTimePicker, {
   DateTimePickerEvent,
@@ -19,7 +19,7 @@ import DateTimePicker, {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { orderBy, where } from "firebase/firestore";
 import * as Icons from "phosphor-react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Platform,
@@ -43,36 +43,42 @@ const TransactionModal = () => {
     walletId: "",
     image: null,
   });
+
   const [loading, setLoading] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const router = useRouter();
+
+  const oldTransaction: paramType = useLocalSearchParams();
 
   const { data: wallets } = useFetchData<WalletType>("wallets", [
     where("uid", "==", user?.uid),
     orderBy("created", "desc"),
   ]);
 
-  const oldTransaction: { name: string; image: string; id: string } =
-    useLocalSearchParams();
-
-  // useEffect(() => {
-  //   if (oldTransaction?.id) {
-  //     setTransaction({
-  //       name: oldTransaction.name,
-  //       image: oldTransaction.image,
-  //     });
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (oldTransaction?.id) {
+      setTransaction({
+        type: oldTransaction.type,
+        amount: Number(oldTransaction.amount),
+        description: oldTransaction.description || "",
+        category: oldTransaction.category || "",
+        date: new Date(oldTransaction.date),
+        walletId: oldTransaction.walletId,
+        image: oldTransaction.image,
+      });
+    }
+  }, []);
 
   const onSubmit = async () => {
-    const {type, amount, description, category, date, walletId, image} = transaction;
+    const { type, amount, description, category, date, walletId, image } =
+      transaction;
 
-    if(!walletId || !amount || (type === 'expense' && !category)) {
+    if (!walletId || !amount || (type === "expense" && !category)) {
       Alert.alert("Transaction", "Please fill all the fields");
       return;
     }
 
-    console.log('working');
+    console.log("working");
     let transactionData: TransactionType = {
       type,
       amount,
@@ -81,10 +87,10 @@ const TransactionModal = () => {
       date,
       walletId,
       image,
-      uid: user?.uid
-    }
+      uid: user?.uid,
+    };
 
-    console.log('transactionData', transactionData);
+    console.log("transactionData", transactionData);
 
     // todo: include transaction id for updating
     setLoading(true);
@@ -93,11 +99,12 @@ const TransactionModal = () => {
     if (response.success) {
       router.back();
     } else {
-      Alert.alert("Transaction", response.message || "Failed to create transaction");
+      Alert.alert(
+        "Transaction",
+        response.message || "Failed to create transaction"
+      );
     }
-    
-  }
-    
+  };
 
   const onDelete = async () => {
     if (!oldTransaction?.id) return;
@@ -151,7 +158,9 @@ const TransactionModal = () => {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.inputContainer}>
-            <Typo color={colors.neutral200} size={16}>Type</Typo>
+            <Typo color={colors.neutral200} size={16}>
+              Type
+            </Typo>
             <Dropdown
               style={styles.dropDownContainer}
               activeColor={colors.neutral700}
@@ -172,9 +181,11 @@ const TransactionModal = () => {
               }}
             />
           </View>
-              {/* Wallet */}
+          {/* Wallet */}
           <View style={styles.inputContainer}>
-            <Typo color={colors.neutral200} size={16}>Wallet</Typo>
+            <Typo color={colors.neutral200} size={16}>
+              Wallet
+            </Typo>
             <Dropdown
               style={styles.dropDownContainer}
               activeColor={colors.neutral700}
@@ -204,7 +215,9 @@ const TransactionModal = () => {
               style={styles.inputContainer}
               entering={FadeInDown.delay(4).springify().damping(14)}
             >
-              <Typo color={colors.neutral200} size={16}>Expense Category</Typo>
+              <Typo color={colors.neutral200} size={16}>
+                Expense Category
+              </Typo>
               <Dropdown
                 style={styles.dropDownContainer}
                 activeColor={colors.neutral700}
@@ -233,7 +246,9 @@ const TransactionModal = () => {
           {/* datePicker Component */}
 
           <View style={styles.inputContainer}>
-            <Typo color={colors.neutral200} size={16}>Date</Typo>
+            <Typo color={colors.neutral200} size={16}>
+              Date
+            </Typo>
             {!showDatePicker && (
               <Pressable
                 style={styles.dateInput}
@@ -272,7 +287,9 @@ const TransactionModal = () => {
           {/* amount */}
 
           <View style={styles.inputContainer}>
-            <Typo color={colors.neutral200} size={16}>Amount</Typo>
+            <Typo color={colors.neutral200} size={16}>
+              Amount
+            </Typo>
             <Input
               keyboardType="numeric"
               value={transaction.amount?.toString()}
@@ -284,21 +301,24 @@ const TransactionModal = () => {
               }
             />
           </View>
-            {/* Description */}
+          {/* Description */}
           <View style={styles.inputContainer}>
             <View style={styles.flexRow}>
-            <Typo color={colors.neutral200} size={16}>Description</Typo>
-            <Typo color={colors.neutral500} size={14}>(optional)</Typo>
+              <Typo color={colors.neutral200} size={16}>
+                Description
+              </Typo>
+              <Typo color={colors.neutral500} size={14}>
+                (optional)
+              </Typo>
             </View>
             <Input
               value={transaction.description}
               multiline
               containerStyle={{
-                flexDirection:'row',
+                flexDirection: "row",
                 height: verticalScale(100),
                 alignItems: "flex-start",
                 paddingVertical: 15,
-                
               }}
               onChangeText={(value) =>
                 setTransaction({
@@ -310,9 +330,13 @@ const TransactionModal = () => {
           </View>
 
           <View style={styles.inputContainer}>
-          <View style={styles.flexRow}>
-            <Typo color={colors.neutral200} size={16}>Receipt</Typo>
-            <Typo color={colors.neutral500} size={14}>(optional)</Typo>
+            <View style={styles.flexRow}>
+              <Typo color={colors.neutral200} size={16}>
+                Receipt
+              </Typo>
+              <Typo color={colors.neutral500} size={14}>
+                (optional)
+              </Typo>
             </View>
             <ImageUpload
               file={transaction.image}
@@ -351,8 +375,6 @@ const TransactionModal = () => {
     </ModalWrapper>
   );
 };
-
-
 
 export default TransactionModal;
 
