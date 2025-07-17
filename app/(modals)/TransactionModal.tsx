@@ -90,9 +90,8 @@ const TransactionModal = () => {
       uid: user?.uid,
     };
 
-    console.log("transactionData", transactionData);
+    if(oldTransaction?.id) transactionData.id = oldTransaction.id;
 
-    // todo: include transaction id for updating
     setLoading(true);
     const response = await createOrUpdateTransaction(transactionData);
     setLoading(false);

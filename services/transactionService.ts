@@ -1,5 +1,6 @@
 import { firestore } from "@/config/firebase";
 import { uploadFileToCloudinary } from "@/services/imageService";
+import { createOrUpdateWallet } from "@/services/walletService";
 import { ResponseType, TransactionType, WalletType } from "@/types";
 import { collection, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
@@ -13,7 +14,24 @@ export const createOrUpdateTransaction = async (
     }
 
     if (id) {
-      // todo: update existing transaction
+      const oldTransactionSnapshot = await getDoc(
+        doc(firestore, "transactions", id)
+      );
+      const oldTransaction = oldTransactionSnapshot.data() as TransactionType;
+      const shouldRevertOriginal =
+        oldTransaction.type !== type ||
+        oldTransaction.amount !== amount ||
+        oldTransaction.walletId !== walletId;
+
+      if (shouldRevertOriginal) {
+        let response = await revertAndUpdateWallets(
+          oldTransaction,
+          Number(amount),
+          type,
+          walletId
+        );
+        if (!response.success) return response;
+      }
     } else {
       // update wallet for new transaction
       let response = await updateWalletForNewTransaction(
@@ -41,8 +59,10 @@ export const createOrUpdateTransaction = async (
       : doc(collection(firestore, "transactions"));
 
     await setDoc(transactionRef, transactionData, { merge: true });
-    return { success: true, data: {...transactionData, id: transactionRef.id} };
-
+    return {
+      success: true,
+      data: { ...transactionData, id: transactionRef.id },
+    };
   } catch (error: any) {
     console.log("error creating or updating transaction", error);
     return { success: false, message: error.message };
@@ -83,6 +103,70 @@ const updateWalletForNewTransaction = async (
     await updateDoc(walletRef, {
       amount: updatedWalletAmount,
       [updateType]: updatedTotals,
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.log("error updating wallet for new transaction", error);
+    return { success: false, message: error.message };
+  }
+};
+
+const revertAndUpdateWallets = async (
+  oldTransaction: TransactionType,
+  newTransactionAmount: number,
+  newTransactionType: string,
+  newWalletId: string
+) => {
+  try {
+    const originalWalletSnapshot = await getDoc(
+      doc(firestore, "wallets", oldTransaction.walletId)
+    );
+    const originalWallet = originalWalletSnapshot.data() as WalletType;
+
+    let newWalletSnapshot = await getDoc(
+      doc(firestore, "wallets", newWalletId)
+    );
+    let newWallet = newWalletSnapshot.data() as WalletType;
+
+    const revertType =
+      oldTransaction.type === "income" ? "totalIncome" : "totalExpenses";
+
+    const revertIncomeExpense =
+      oldTransaction.type === "income"
+        ? -Number(oldTransaction.amount)
+        : Number(oldTransaction.amount);
+
+    const revertedWalletAmount =
+      Number(originalWallet.amount) + revertIncomeExpense;
+
+    const revertedIncomeExpenseAmount =
+      Number(originalWallet[revertType]) - Number(oldTransaction.amount);
+
+    if (newTransactionType === "expense") {
+      if (
+        oldTransaction.walletId === newWalletId &&
+        revertedWalletAmount < newTransactionAmount
+      ) {
+        return {
+          success: false,
+          message: "The selected wallet don't have enough balance",
+        };
+      }
+
+      //  if user tries to add expense from a new wallet but the wallet doesn't have enough balance
+      if (newWallet.amount! < newTransactionAmount) {
+        return {
+          success: false,
+          message: "Insufficient funds in wallet for this transaction",
+        };
+      }
+    }
+
+    await createOrUpdateWallet({
+      id: oldTransaction.walletId,
+      amount: revertedWalletAmount,
+      [revertType]: revertedIncomeExpenseAmount,
     });
   } catch (error: any) {
     console.log("error updating wallet for new transaction", error);
