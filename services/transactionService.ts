@@ -168,6 +168,29 @@ const revertAndUpdateWallets = async (
       amount: revertedWalletAmount,
       [revertType]: revertedIncomeExpenseAmount,
     });
+
+    // refetching new wallet
+    newWalletSnapshot = await getDoc(
+      doc(firestore, "wallets", newWalletId)
+    );
+    newWallet = newWalletSnapshot.data() as WalletType;
+
+    const updateType = newTransactionType === 'income' ? 'totalIncome' : 'totalExpenses';
+    const updatedTransactionAmount: number =
+      newTransactionType === "income"
+        ? Number(newTransactionAmount) 
+        : -Number(newTransactionAmount);
+
+    const newWalletAmount = Number(newWallet.amount) + updatedTransactionAmount;
+
+    const newIncomeExpenseAmount = Number(newWallet[updateType]! + Number(newTransactionAmount));
+
+    await createOrUpdateWallet({
+      id: newWalletId,
+      amount: newWalletAmount,
+      [updateType]: newIncomeExpenseAmount,
+    });
+
   } catch (error: any) {
     console.log("error updating wallet for new transaction", error);
     return { success: false, message: error.message };
